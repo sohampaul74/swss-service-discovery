@@ -1,0 +1,46 @@
+logging:
+  level:
+    '[org.springframework.security]': debug
+    root: info
+    
+server:
+  port: 8761
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: false
+auth:
+  client:
+    detail:
+      id: discovery
+      registration-id: eureka-discovery
+      secret: 123
+      authorization-uri: http://${AUTH_SERVER}/oauth/token
+      token-uri: http://${AUTH_SERVER}/oauth/check_token
+      
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken:
+          client-id: discovery
+          client-secret: mobile
+          introspection-uri: http://${AUTH_SERVER:localhost:8081}/oauth/check_token
+      client:
+        registration:
+          custom-client:
+            client-id: discovery
+            client-secret: mobile
+            client-name: auth-server
+            provider: auth-server
+            authorization-grant-type: authorization_code
+            redirect-uri: http://${SERVICE_DISCOVERY:localhost:8761}/eureka
+            client-authentication-method: FORM
+            scope: READ
+        provider:
+          auth-server:
+            authorization-uri: http://${AUTH_SERVER:localhost:8081}/oauth/authorize
+            token-uri: http://${AUTH_SERVER:localhost:8081}/oauth/token
+            user-info-uri: http://${AUTH_SERVER:localhost:8081}/oauth/check_token
+      
